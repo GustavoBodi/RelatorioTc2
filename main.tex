@@ -1,0 +1,464 @@
+\documentclass{article}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{minted}
+\usepackage{hyperref}
+\usepackage{amssymb} 
+\usepackage{algorithm}
+\usepackage{pygmentex}
+\usepackage{amsmath}
+\usepackage{algpseudocode}
+\usepackage[many]{tcolorbox}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage{paracol}
+\usepackage{algpseudocode}
+\usepackage{makecell}
+\usepackage{silence,lmodern}
+\usepackage[margin=1in]{geometry}
+
+\author{Gustavo Ribeiro Bôdi e Pedro Alfeu}
+\title{\vspace{-2.2cm}Relatório Trabalho 2 Máquinas de Turing e Complexidade}
+
+
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
+\makeatother
+
+
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[8pt]}
+\newtcolorbox{boxK} {
+  sharpish corners,
+  boxrule = 0pt,
+  toprule = 4.5pt,
+  enhanced,
+  fuzzy shadow = {0pt}{-2pt}{-0.5pt}{0.5pt}{black!35} % {xshift}{yshift}{offset}{step}{options} 
+}
+
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+\begin{document}
+\maketitle
+\section{Análise de Complexidade}
+
+Para a análise de complexidade dos algoritmos, descreveu-se os algoritmos de
+acordo com as tabelas, e á direita de cada linha, encontra-se a complexidade de
+cada operação. Após uma breve descrição dos procedimentos, fez-se a soma, dos
+valores, as devidas simplificações e apresentou-se as complexidades finais.
+
+Nas descrições, quando uma linguagem $L$ detêm, por exemplo $a$'s e $b$'s,
+para identificar a quantidade de $a$'s, convencionou-se por: $"a"$.
+
+\subsection{Questão(a)}
+Na primeira questão tem-se a seguinte linguagem: $$L=\{a^ib^jc^k \mid i,j,k \in \mathbb{N}\ e\ i\times j = k\}$$
+
+\subsubsection{Fita Única Original}
+
+O algoritmo em alto nível em uma máquina de fita única que resolve a linguagem é dado por:
+
+\begin{algorithm} 
+  \caption{Algoritmo que resolve a linguagem da questão 1a}
+\begin{algorithmic}[1]
+  \Require{$w$}
+  \Ensure{boolean}
+\ForEach {$a \in w $}
+\Comment {$\mathcal{O}(a)$}
+\State $a \gets A$
+\Comment {$\mathcal{O}(c_1)$}
+\State Passar pelos $a$
+\Comment {$\mathcal{O}("a" - "A")$}
+\State Passar pelos $B$
+\Comment {$\mathcal{O}("B")$}
+\ForEach{$b \in w$}
+\Comment {$\mathcal{O}("b")$}
+  \State $b \gets B$
+  \Comment {$\mathcal{O}(c_2)$}
+  \State Passar pelos $b$
+  \Comment {$\mathcal{O}("b" - "B")$}
+  \State Passar pelos $C$
+  \Comment {$\mathcal{O}("c" - "C")$}
+  \State $c \gets C$
+  \Comment {$\mathcal{O}(c_3)$}
+  \State Voltar todos os $C$
+  \Comment {$\mathcal{O}("C")$}
+  \State Voltar todos os $b$
+  \Comment {$\mathcal{O}("b")$}
+\EndFor
+\ForEach{$B \in w$}
+  \Comment {$\mathcal{O}("B")$}
+\State $B \gets b$
+\Comment {$\mathcal{O}(c_4)$}
+\EndFor
+\EndFor
+\ForEach{$c \in w$}
+\Comment {$\mathcal{O}("C" - c)$}
+\If {Existir $c$}
+  \Comment {$\mathcal{O}(c_5)$}
+  \State \Return false
+  \Comment {$\mathcal{O}(c_6)$}
+  \EndIf
+\EndFor
+\State \Return true
+  \Comment {$\mathcal{O}(c_7)$}
+\end{algorithmic}
+\end{algorithm}
+
+Basicamente, para cada a, marca-se cada b e cada c, depois limpa-se as
+marcações de B e marca-se para cada B cada C de novo.
+
+Resolvendo assim a complexidade do algoritmo da questão têm-se:
+
+Da linha 1 até a linha 14:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}("a") \cdot (\mathcal{O}(c_1) + \mathcal{O}("a"-"A") + \mathcal{O}("B") + \\
+                     &\mathcal{O}("b") \cdot (\mathcal{O}(c_2) + \mathcal{O}("b"-"B") + \mathcal{O}("c"-"C") + \mathcal{O}(c_3)) + \\
+                     &\mathcal{O}("B") \cdot \mathcal{O}(c_4)) \\
+\end{split}
+\end{align}
+
+Da linha 15 até a linha 20:
+$$\mathcal{O}("C"-"c") \cdot \mathcal{O}(c_5) + \mathcal{O}(c_6) + \mathcal{O}(c_7)$$
+
+Considerando todos os $c_x$ como sendo $c$ qualquer e juntando ambas as expressões:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}("a") \cdot (\mathcal{O}(c) + \mathcal{O}("a"-"A") + \mathcal{O}("B") + \\
+                     &\mathcal{O}("b") \cdot (\mathcal{O}(c) + \mathcal{O}("b"-"B") + \mathcal{O}("c"-"C") + \mathcal{O}(c)) + \\
+                     &\mathcal{O}("B") \cdot \mathcal{O}(c)) + \\
+                     &\mathcal{O}("C"-"c") \cdot \mathcal{O}(c) + \mathcal{O}(c) + \mathcal{O}(c) \\
+  \end{split}
+\end{align}
+Considerando a quantidade de $"a" - "A"$ como sendo $"a"$ e o equivalente para $b, c$. E ainda que $"A"$ no pior caso é $"a"$:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}("a") \cdot (\mathcal{O}(c) + \mathcal{O}("a") + \mathcal{O}("b") + \\
+                     &\mathcal{O}("b") \cdot (\mathcal{O}(c) + \mathcal{O}("b") + \mathcal{O}("c") + \mathcal{O}(c)) + \\
+                     &\mathcal{O}("b") \cdot \mathcal{O}(c)) + \\
+                     &\mathcal{O}("c") \cdot \mathcal{O}(c) + \mathcal{O}(c) + \mathcal{O}(c) \\
+  \end{split}
+\end{align}
+Simplificando, temos que:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}("a") \cdot (c + \mathcal{O}("a") + \mathcal{O}("b") + \\
+                     &\mathcal{O}("b") \cdot (c + \mathcal{O}("b") + \mathcal{O}("c") + c) + \\
+                     &\mathcal{O}("b") \cdot c) + \\
+                     &\mathcal{O}("c") \cdot c + c + c \\
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}("a" \cdot c + "a"^2 + "a" \cdot "b" + "a"\cdot "b" \cdot c + \\
+                     &"a"\cdot"b"^2 + "a" \cdot "b" \cdot "c" + "a" \cdot "b" \cdot c + "b" \cdot c) + \\
+                     &\mathcal{O}("c") \cdot 3c
+  \end{split}
+\end{align}
+Considerando a quantidade de $a$ $"a"$, $b$ $"b"$ e $c$ $"c"$ como sendo $n$:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}(n \cdot c + n^2 + n \cdot n + n\cdot n \cdot c + \\
+                     &n\cdot n^2 + n \cdot n \cdot n + n \cdot n \cdot c + n \cdot c) +\\
+                     &\mathcal{O}(n) \cdot 3c \\
+    \mathcal{O}(n) = &{}\\
+                     &\mathcal{O}(n \cdot c + n^2 + n^2 + cn^2 + \\
+                     &n^3 + n^3 + cn^2 + cn) + \\
+                     &\mathcal{O}(n) \cdot 3c \\
+  \end{split}
+\end{align}
+
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}(2n^3 + 2n^2 + 2cn^2 + 4cn)
+  \end{split}
+\end{align}
+
+Considerando somente o termo mais significativo:
+$$\mathcal{O}(n^3)$$
+\pagebreak
+
+\subsubsection{Multifitas Otimizada}
+
+Para a máquina multifitas o algoritmo será uma classe de complexidade melhor.
+Aqui, ao fazer uso de três fitas, a multiplicação será dada em tempo linear à
+entrada. O procedimento será copiar "a" para uma segunda fita e "b" para uma
+terceira, a partir disso ao encontrar um c mover a cabeçote$_2$ para o primeiro
+$a$ e mover o cabeçote$_3$ para cada $c$ encontrado. Quando o cabeçote$_3$
+encontrar um caracter vazio, basta mover o cabeçote$_2$ para o próximo $a$ e
+continuar até terminar todos os $c$.
+
+A descrição alto nível do algoritmo é dada por:
+
+\begin{algorithm} 
+  \caption{Algoritmo que resolve a linguagem da questão 1a em tempo linear}
+\begin{algorithmic}[1]
+  \Require{$w$}
+  \Ensure{boolean}
+  \ForEach{$a \in w$}
+  \Comment $\mathcal{O}("a")$
+    \State Copiar $a$ para a fita$_2$
+  \Comment $\mathcal{O}(c_1)$
+  \EndFor
+  \ForEach{$b \in w$}
+  \Comment $\mathcal{O}("b")$
+    \State Copiar $b$ para a fita$_3$
+  \Comment $\mathcal{O}(c_2)$
+  \EndFor
+  \ForEach{$c \in w$}
+  \Comment $\mathcal{O}("c")$
+  \If{cabeçote$_3$ == vazio}
+  \State Passar para o próximo $a$
+  \Comment $\mathcal{O}(c_4)$
+  \If{cabeçote$_2$, cabeçote$_3$ == vazio}
+    \State \Return true
+  \EndIf
+  \State Inverter a direção de iteração da fita$_3$
+  \Comment $\mathcal{O}(c_5)$
+  \EndIf
+  \State Passar para o próximo caracter na fita$_2$
+  \Comment $\mathcal{O}(c_6)$
+  \EndFor
+\end{algorithmic}
+\end{algorithm}
+
+O cálculo de complexidade será dado por:
+
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}("a") \cdot c_1 + \mathcal{O}("b") \cdot c_2 + \mathcal{O}("c") \cdot c_6 + \frac{\mathcal{O}("c") \cdot (c_4 + c_5)}{"a"}  \\
+\end{split}
+\end{align}
+
+Vale notar que o condicional da linha 7, para o pior caso, acontecerá para cada a existente na sequência de caracteres.
+Simplificando, considerando todas as constantes $c_x$ como $c$:
+
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}("a" \cdot c + "b" \cdot c +"c" \cdot c + \frac{"c" \cdot 2c }{"a"})  \\
+\end{split}
+\end{align}
+
+Como temos que a entrada corresponde a $n = "a" + "b" + "c"$:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}(c \cdot (n + \frac{"c" \cdot 2 }{"a"})  \\
+\end{split}
+\end{align}
+
+Considerando somente o termo de maior importância, teremos:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n)
+\end{split}
+\end{align}
+
+\pagebreak
+
+\subsection{Questão(b)}
+Na segunda questão têm-se a seguinte linguagem: $$L=\{a^nb^mc^pd^q\mid n<m,m \neq p + q\ \text{e}\ p > q\}$$
+
+\subsubsection{Fita Única original}
+
+O algoritmo de alto nível que resolve a linguagem é dado por:
+
+\begin{breakablealgorithm} 
+  \caption{Algoritmo que resolve a linguagem da questão 1b}
+\begin{algorithmic}[1]
+  \Require{$w$}
+  \Ensure{boolean}
+\ForEach {$a \in w $}
+\Comment{Lidando aqui com a restrição $n<m$ $\mathcal{O}("a")$}
+\State $a \gets A$
+\Comment $\mathcal{O}(c_1)$
+\State passar por todos os $a$ e $B$
+\Comment $\mathcal{O}("a" - 1 + "B")$
+\State $b \gets B$
+\Comment $\mathcal{O}(c_2)$
+\State voltar até encontrar um $A$
+\Comment $\mathcal{O}("a" + "B")$
+\EndFor
+\If {$b \not \in w$}
+\Comment $\mathcal{O}("B")$
+\State \Return false
+\EndIf
+\ForEach {$B, A \in w$}
+\Comment $\mathcal{O}("B" + "A")$
+\State $B \gets b$
+\Comment $\mathcal{O}(c_3)$
+\State $A \gets a$
+\Comment $\mathcal{O}(c_4)$
+\EndFor
+\ForEach {$b \in w $}
+\Comment{Lidando aqui com a restrição $m\neq p+q$ $\mathcal{O}("b")$}
+\State $b \gets B$
+\Comment $\mathcal{O}(c_5)$
+\State passar por todos os $b$, $C$ e $D$
+\Comment $\mathcal{O}("b" + "c" + "D")$
+\If {cabeçote = $c$}
+  \Comment $\mathcal{O}(c_6)$
+  \State $c \gets C$
+  \Comment $\mathcal{O}(c_7)$
+  \ElsIf{cabeçote = $d$}
+  \Comment $\mathcal{O}(c_8)$
+  \State $d \gets D$
+  \Comment $\mathcal{O}(c_9)$
+\EndIf
+\State voltar até encontrar um $B$
+  \Comment $\mathcal{O}("C" + "b")$
+\EndFor
+\If {$c \not \in w\ \text{and}\ d \not \in w$}
+  \Comment $\mathcal{O}("c" + "d")$
+\State \Return false
+\Comment $\mathcal{O}(c_{10})$
+\EndIf
+\ForEach {$B, C, D \in w$}
+\Comment $\mathcal{O}("B" + "C" + "D")$
+\State $B \gets b$
+\Comment $\mathcal{O}(c_{11})$
+\State $C \gets c$
+\Comment $\mathcal{O}(c_{12})$
+\State $D \gets d$
+\Comment $\mathcal{O}(c_{13})$
+\EndFor
+\ForEach{$c \in w$}
+\Comment{Lidando aqui com a restrição $p>q$ $\mathcal{O}("c")$}
+\State $c \gets C$
+\Comment $\mathcal{O}(c_{14})$
+\State passar por todos os $D$ e $c$
+\Comment $\mathcal{O}("D" + "c")$
+\State $d \gets D$
+\Comment $\mathcal{O}(c_{15})$
+\State voltar até encontrar C
+\Comment $\mathcal{O}("D" + "c")$
+\If {cabeçote = vazio}
+\Comment $\mathcal{O}(c_{16})$
+\State \Return true
+\Comment $\mathcal{O}(c_{17})$
+\EndIf
+\EndFor
+\State \Return false
+\Comment $\mathcal{O}(c_{18})$
+\end{algorithmic}
+\end{breakablealgorithm}
+
+Percebe-se aqui que o algoritmo está efetivamente dividido em três partes, cada
+uma delas lida com cada uma das limitações impostas pela linguagem.
+
+\subsubsection{ Multifitas Modificado }
+Para o multifitas da questão 1b, de novo foi possível resolver a linguagem
+fazendo uso de um atômato que computa em tempo linear. Para tal, foi necessário
+usar uma fita para cada uma das comparações da linguagem, totalizando 4 fitas:
+3 comparações + uma fita de entrada.
+
+Esta solução envolveu movimentar o cabeçote de cada fita de acordo com a
+leitura da entrada e somente transicionar para o próximo estado caso fizesse
+sentido de acordo com as comparações da linguagem.
+
+O algoritmo de alto nível que descreve a nova máquina é descrito como:
+
+\begin{breakablealgorithm} 
+  \caption{Algoritmo que resolve a linguagem da questão 1b em tempo linear}
+\begin{algorithmic}[1]
+  \Require{$w$}
+  \Ensure{boolean}
+  \ForEach{$a \in w$}
+  \Comment $\mathcal{O}("a")$
+  \State Escrever a na fita$_2$
+  \Comment $\mathcal{O}(c_1)$
+  \EndFor
+  \State Escrever símbolo de inicio na fita$_3$
+  \Comment $\mathcal{O}(c_2)$
+  \ForEach{$b \in w$}
+  \Comment $\mathcal{O}("b")$
+  \State Retroceder a fita$_2$
+  \Comment $\mathcal{O}(c_3)$
+  \State Avançar na fita$_3$
+  \Comment $\mathcal{O}(c_4)$
+  \EndFor
+  \ForEach{$c \in w$}
+  \Comment $\mathcal{O}("c")$
+  \State Retroceder a fita$_3$
+  \Comment $\mathcal{O}(c_5)$
+  \State Escrever c na fita$_4$ e avança
+  \Comment $\mathcal{O}(c_6)$
+  \EndFor
+  \ForEach{$d \in w$}
+  \Comment $\mathcal{O}("d")$
+  \State Retroceder a fita$_3$
+  \Comment $\mathcal{O}(c_7)$
+  \State Retroceder a fita$_4$
+  \Comment $\mathcal{O}(c_8)$
+  \EndFor
+  \If{cabeçote$_1$, cabeçote$_2$, cabeçote$_3$ = vazio e cabeçote$_4$ = $c$}
+  \Comment $\mathcal{O}(c_9)$
+  \State \Return true
+  \Comment $\mathcal{O}(c_{10})$
+  \Else
+  \State \Return false
+  \Comment $\mathcal{O}(c_{10})$
+  \EndIf
+\end{algorithmic}
+\end{breakablealgorithm}
+
+O cálculo de complexidade será dado por:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}("a") \cdot c_1 + \mathcal{O}(c_2) + \mathcal{O}("b") \cdot (c_3 + c_4) + \mathcal{O}("c") \cdot (c_5 + c_6) + \mathcal{O}("d") \cdot (c_7 + c_8) + c_9 + c_{10} \\
+\end{split}
+\end{align}
+
+Simplificando, considerando todas as constantes $c_x$ como $c$:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}("a" \cdot c + c + "b" \cdot 2c + "c" \cdot 2c + "d" \cdot 2c + 2c) \\
+    \mathcal{O}(n) = \mathcal{O}(c"a" + 2c"b" + 2c"c" + 2c"d" + 3c) \\
+    \mathcal{O}(n) = \mathcal{O}(c \cdot ("a" + 2"b" + 2"c" + 2"d" + 3)) \\
+\end{split}
+\end{align}
+
+Como as ações dentro dos loops são executadas em "paralelo", ou em fitas
+diferentes ao mesmo tempo, pode-se remover o fator multiplicativo 2 das
+constantes. Além disso, como temos que a entrada corresponde a $n = "a" + "b" + "c" + "d"$:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(n) = \mathcal{O}(c \cdot (n + 3)) \\
+\end{split}
+\end{align}
+
+Considerando somente o termo de maior importância, teremos:
+\begin{align}
+  \begin{split}
+    \mathcal{O}(cn) \\
+    \mathcal{O}(n)
+\end{split}
+\end{align}
+
+\end{document}
